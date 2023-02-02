@@ -111,63 +111,10 @@ class LSFSingularity(SingularityContainer):
 
     def _run_invocation(self, logger: logging.Logger, cleanup: ExitStack,
                         image: str) -> List[str]:
-        singularity_command = self._singularity_exec_invocation(logger, cleanup, image)
+        singularity_command = super()._run_invocation(logger, cleanup, image)
 
         lsf_invocation = self._lsf_invocation()
         lsf_invocation.extend(singularity_command)
         logger.info("LSF invocation: " + ' '.join(
             shlex.quote(part) for part in lsf_invocation))
         return lsf_invocation
-
-
-    # Modified from miniwdl standard singularity implementation to use singularity exec, rather than run
-    def _singularity_exec_invocation(self, logger: logging.Logger, cleanup: ExitStack, image: str) -> List[str]:
-        """
-        Formulate `singularity run` command-line invocation
-        """
-
-        ans = self.cli_exe
-        if logger.isEnabledFor(logging.DEBUG):
-            ans.append("--verbose")
-        ans += [
-            "exec",
-            "--pwd",
-            os.path.join(self.container_dir, f"work{self.try_counter if self.try_counter > 1 else ''}"),
-        ]
-        if self.runtime_values.get("privileged", False) is True:
-            logger.warning("runtime.privileged enabled (security & portability warning)")
-            ans += ["--add-caps", "all"]
-        ans += self.cfg.get_list("singularity", "run_options")
-
-        mounts = self.prepare_mounts()
-        # Also create a scratch directory and mount to /tmp and /var/tmp
-        # For context why this is needed:
-        #   https://github.com/hpcng/singularity/issues/5718
-        # TODO: provide opt-out for those able to edit /etc/singularity/singularity.conf to
-        #       increase sessiondir max size
-        tempdir = cleanup.enter_context(
-            tempfile.TemporaryDirectory(prefix="_singularity_tmpdir_", dir=self.host_dir)
-        )
-        os.mkdir(os.path.join(tempdir, "tmp"))
-        os.mkdir(os.path.join(tempdir, "var_tmp"))
-        mounts.append(("/tmp", os.path.join(tempdir, "tmp"), True))
-        mounts.append(("/var/tmp", os.path.join(tempdir, "var_tmp"), True))
-
-        logger.info(
-            _(
-                "singularity invocation",
-                args=" ".join(shlex.quote(s) for s in (ans + [image])),
-                binds=len(mounts),
-                tmpdir=tempdir,
-            )
-        )
-        for (container_path, host_path, writable) in mounts:
-            if ":" in (container_path + host_path):
-                raise InputError("Singularity input filenames cannot contain ':'")
-            ans.append("--bind")
-            bind_arg = f"{host_path}:{container_path}"
-            if not writable:
-                bind_arg += ":ro"
-            ans.append(bind_arg)
-        ans.append(image)
-        return ans
