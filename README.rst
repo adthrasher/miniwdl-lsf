@@ -24,8 +24,8 @@ example can be used to use miniwdl on a LSF cluster:
 
     [scheduler]
     container_backend=lsf_singularity
-    # task_concurrency defaults to the number of processors on the system.
-    # TODO: find a better setting
+    # Sets the maximum concurrent tasks. Since LSF handles scheduling, we only
+    # limit to avoid excessive overhead in miniwdl.
     task_concurrency=200
     
     # This setting allows running tasks to continue, even if one other tasks fails. 
@@ -48,6 +48,8 @@ example can be used to use miniwdl on a LSF cluster:
             "maxRetries": 2,
             "docker": "ubuntu:20.04"
         }
+
+    command_shell = /bin/bash
  
     [singularity]
     # This plugin wraps the singularity backend. Make sure the settings are
@@ -57,7 +59,8 @@ example can be used to use miniwdl on a LSF cluster:
     # the miniwdl default options contain options to run as a fake root, which
     # is not available on most clusters.
     run_options = [
-            "--containall"
+            "--containall",
+            "--cleanenv"
         ]
 
     # Location of the singularity images (optional). The miniwdl-lsf plugin
@@ -67,4 +70,4 @@ example can be used to use miniwdl on a LSF cluster:
 
     [lsf]
     # extra arguments passed to the bsub command (optional).
-    extra_args="-q compbio"
+    extra_args=""
