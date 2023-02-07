@@ -96,8 +96,16 @@ class LSFSingularity(SingularityContainer):
 
         memory = self.runtime_values.get("memory_reservation", None)
         if memory is not None:
+            # LSF memory specifications are per-core.
+            # WDL (bioinformatics) tasks often specify memory per job.
+            # This option divides the memory by the number of cores
+            # prior to submission to LSF.
+            memory_divisor = 1
+            if self.cfg["lsf"].get_bool("memory_per_job") and cpu is not None:
+               memory_divisor = cpu
+            
             # Round to the nearest megabyte.
-            bsub_args.extend(["-M", f"{round(memory / (1024 ** 2))}M"])
+            bsub_args.extend(["-M", f"{round((memory / (1024 ** 2)) / memory_divisor)}M"])
 
         #time_minutes = self.runtime_values.get("time_minutes", None)
         #if time_minutes is not None:
