@@ -1,4 +1,4 @@
-# Copyright (c) 2022 
+# Copyright (c) 2022- 
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -80,9 +80,7 @@ class LSFSingularity(SingularityContainer):
             self.runtime_values["time_minutes"] = time_minutes
 
     def _lsf_invocation(self):
-        # We use bsub as this makes the submitted job behave like a local job.
-        # This also gives informative exit codes back, including 253 for out
-        # of memory.
+        # We use bsub -I as this makes the submitted job behave like a local job.
         bsub_args = [
             "bsub",
             "-I",
@@ -106,10 +104,6 @@ class LSFSingularity(SingularityContainer):
             
             # Round to the nearest megabyte.
             bsub_args.extend(["-M", f"{round((memory / (1024 ** 2)) / memory_divisor)}M"])
-
-        #time_minutes = self.runtime_values.get("time_minutes", None)
-        #if time_minutes is not None:
-        #    bsub_args.extend(["--time", str(time_minutes)])
 
         if self.cfg.has_section("lsf"):
             extra_args = self.cfg.get("lsf", "extra_args")
