@@ -83,9 +83,13 @@ class LSFSingularity(SingularityContainer):
         # We use bsub -I as this makes the submitted job behave like a local job.
         bsub_args = [
             "bsub",
-            "-I",
+            "-K",
             "-J", self.run_id,
         ]
+
+        # Redirect LSF logs to files
+        bsub_args.extend(["-o", os.path.join(self.host_dir, "stdout.lsf")])
+        bsub_args.extend(["-e", os.path.join(self.host_dir, "stderr.lsf")])
 
         cpu = self.runtime_values.get("cpu", None)
         if cpu is not None:
