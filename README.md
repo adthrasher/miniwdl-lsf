@@ -71,3 +71,5 @@ example can be used to use miniwdl on a LSF cluster:
     [lsf]
     # extra arguments passed to the bsub command (optional).
     extra_args=""
+    # Task memory specifications should be interpreted as per-job not per-core (LSF default)
+    memory_per_job = true
