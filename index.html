@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="miniwdl plugin that enables support for the LSF batch system. Uses Singularity as a container engine.">
+        <meta name="author" content="Andrew Thrasher">
+        
+        <link rel="shortcut icon" href="img/favicon.ico">
+        <title>miniwdl-lsf</title>
+        <link href="css/bootstrap.min.css" rel="stylesheet">
+        <link href="css/font-awesome.min.css" rel="stylesheet">
+        <link href="css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/purebasic.min.css">
+
+        <script src="js/jquery-1.10.2.min.js" defer></script>
+        <script src="js/bootstrap.min.js" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script> 
+    </head>
+
+    <body class="homepage">
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href=".">miniwdl-lsf</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+
+                    <ul class="nav navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-toggle="modal" data-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a href="https://github.com/adthrasher/miniwdl-lsf/edit/master/docs/README.md" class="nav-link"><i class="fa fa-github"></i> Edit on GitHub</a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-light navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-toggle="collapse" data-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-level="1"><a href="#miniwdl-lsf" class="nav-link">miniwdl-lsf</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-level="2"><a href="#installation" class="nav-link">Installation</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#configuration" class="nav-link">Configuration</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<h1 id="miniwdl-lsf">miniwdl-lsf</h1>
+<p>Extends miniwdl to run workflows on LSF clusters in singularity containers.</p>
+<p>This <a href="https://miniwdl.readthedocs.io/en/latest/runner_backends.html">LSF backend</a> plugin for
+<a href="https://github.com/chanzuckerberg/miniwdl">miniwdl</a> runs WDL task containers
+by creating a job script that is submitted to a LSF cluster. In case the job
+description has a container, singularity will be used as container runtime.</p>
+<h2 id="installation">Installation</h2>
+<p>For the development version::</p>
+<pre><code>pip install git+https://github.com/adthrasher/miniwdl-lsf.git
+</code></pre>
+<h2 id="configuration">Configuration</h2>
+<p>The following <a href="https://miniwdl.readthedocs.io/en/latest/runner_reference.html#configuration">miniwdl configuration</a>
+example can be used to use miniwdl on a LSF cluster:</p>
+<pre><code>    [scheduler]
+    container_backend=lsf_singularity
+    # Sets the maximum concurrent tasks. Since LSF handles scheduling, we only
+    # limit to avoid excessive overhead in miniwdl.
+    task_concurrency=200
+
+    # This setting allows running tasks to continue, even if one other tasks fails. 
+    # Useful in combination with call caching. Prevents wasting resources by
+    # cancelling jobs half-way that would probably succeed.
+    fail_fast = false
+
+    [call_cache]
+    # The following settings create a call cache under the current directory.
+    # This prevents wasting unnecessary resources on the cluster by rerunning 
+    # jobs that have already succeeded.
+    put = true 
+    get = true 
+    dir = &quot;$PWD/miniwdl_call_cache&quot;
+
+    [task_runtime]
+    # Setting a 'maxRetries' default allows jobs that fail due to intermittent
+    # errors on the cluster to be retried.
+    defaults = {
+            &quot;maxRetries&quot;: 2,
+            &quot;docker&quot;: &quot;ubuntu:20.04&quot;
+        }
+
+    command_shell = /bin/bash
+
+    [singularity]
+    # This plugin wraps the singularity backend. Make sure the settings are
+    # appropriate for your cluster.
+    exe = [&quot;singularity&quot;]
+
+    # the miniwdl default options contain options to run as a fake root, which
+    # is not available on most clusters.
+    run_options = [
+            &quot;--containall&quot;,
+            &quot;--cleanenv&quot;
+        ]
+
+    # Location of the singularity images (optional). The miniwdl-lsf plugin
+    # will set it to a directory inside $PWD. This location must be reachable
+    # for the submit nodes.
+    image_cache = &quot;$PWD/miniwdl_singularity_cache&quot;
+
+    [lsf]
+    # extra arguments passed to the bsub command (optional).
+    extra_args=&quot;&quot;
+    # Task memory specifications should be interpreted as per-job not per-core (LSF default)
+    memory_per_job = true
+</code></pre></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+                <p>© 2023 - present</p>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script>
+            var base_url = ".",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="js/base.js" defer></script>
+        <script src="search/main.js" defer></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+                <p>From here you can search these documents. Enter your search terms below.</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>
+
+<!--
+MkDocs version : 1.4.2
+Build Date UTC : 2023-04-12 17:31:04.158229+00:00
+-->
