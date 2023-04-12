@@ -2,9 +2,8 @@ miniwdl-lsf
 =============
 Extends miniwdl to run workflows on LSF clusters in singularity containers.
 
-This `LSF backend
-<https://miniwdl.readthedocs.io/en/latest/runner_backends.html>`_ plugin for
-`miniwdl <https://github.com/chanzuckerberg/miniwdl>`_ runs WDL task containers
+This [LSF backend](https://miniwdl.readthedocs.io/en/latest/runner_backends.html) plugin for
+[miniwdl](https://github.com/chanzuckerberg/miniwdl) runs WDL task containers
 by creating a job script that is submitted to a LSF cluster. In case the job
 description has a container, singularity will be used as container runtime.
 
@@ -16,12 +15,10 @@ For the development version::
 
 Configuration
 --------------
-The following `miniwdl configuration
-<https://miniwdl.readthedocs.io/en/latest/runner_reference.html#configuration>`_
+The following [miniwdl configuration](https://miniwdl.readthedocs.io/en/latest/runner_reference.html#configuration)
 example can be used to use miniwdl on a LSF cluster:
 
-.. code-block:: ini
-
+```
     [scheduler]
     container_backend=lsf_singularity
     # Sets the maximum concurrent tasks. Since LSF handles scheduling, we only
@@ -73,3 +70,4 @@ example can be used to use miniwdl on a LSF cluster:
     extra_args=""
     # Task memory specifications should be interpreted as per-job not per-core (LSF default)
     memory_per_job = true
+```
