@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "miniwdl_lsf"
+version = "0.1.0"
+description = "miniwdl lsf backend using singularity"
+authors = ["Andrew Thrasher <adthrasher@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "miniwdl_lsf", from = "src"}]
+keywords = ["WDL", "miniwdl", "workflow language", "LSF", "Singularity"]
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Topic :: System :: Distributed Computing"
+]
+
+[tool.poetry.dependencies]
+python = ">3.6"
+miniwdl = ">=1.7.0"
+
+[tool.poetry.plugins."miniwdl.plugin.container_backend"]
+lsf_singularity="miniwdl_lsf:LSFSingularity"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

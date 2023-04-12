@@ -1,0 +1,11 @@
+site_name: "miniwdl-lsf"
+repo_url: "https://github.com/adthrasher/miniwdl-lsf"
+
+site_description: "miniwdl plugin that enables support for the LSF batch system. Uses Singularity as a container engine."
+site_author: "Andrew Thrasher"
+copyright: "© 2023 - present"
+
+nav:
+  - "Home": "README.md"
+
+theme: cosmo
