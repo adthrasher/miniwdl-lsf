@@ -88,8 +88,8 @@ class LSFSingularity(SingularityContainer):
         ]
 
         # Redirect LSF logs to files
-        bsub_args.extend(["-o", os.path.join(self.host_work_dir, "stdout.lsf")])
-        bsub_args.extend(["-e", os.path.join(self.host_work_dir, "stderr.lsf")])
+        bsub_args.extend(["-o", os.path.join(self.host_dir, f"stdout{self.try_counter if self.try_counter > 1 else ''}.lsf")])
+        bsub_args.extend(["-e", os.path.join(self.host_dir, f"stderr{self.try_counter if self.try_counter > 1 else ''}.lsf")])
 
         cpu = self.runtime_values.get("cpu", None)
         if cpu is not None:
