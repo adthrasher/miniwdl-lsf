@@ -88,15 +88,16 @@ class LSFSingularity(SingularityContainer):
         ]
 
         # Redirect LSF logs to files
-        bsub_args.extend(["-o", os.path.join(self.host_dir, "stdout.lsf")])
-        bsub_args.extend(["-e", os.path.join(self.host_dir, "stderr.lsf")])
+        bsub_args.extend(["-o", os.path.join(self.host_work_dir, "stdout.lsf")])
+        bsub_args.extend(["-e", os.path.join(self.host_work_dir, "stderr.lsf")])
 
         cpu = self.runtime_values.get("cpu", None)
         if cpu is not None:
             bsub_args.extend(["-n", str(cpu)])
             bsub_args.extend(["-R span[hosts=1]"])
 
-        memory = self.runtime_values.get("memory_reservation", None)
+        # Get memory reservation for job in bytes
+        memory = self.runtime_values.get("memory_reservation", 0)
         if memory is not None:
             # LSF memory specifications are per-core.
             # WDL (bioinformatics) tasks often specify memory per job.
@@ -107,7 +108,7 @@ class LSFSingularity(SingularityContainer):
                memory_divisor = cpu
             
             # Round to the nearest megabyte.
-            bsub_args.extend(["-M", f"{round((memory / (1024 ** 2)) / memory_divisor)}M"])
+            bsub_args.extend(["-M", f"{round((memory / (1000 ** 2)) / memory_divisor)}M"])
 
         if self.cfg.has_section("lsf"):
             extra_args = self.cfg.get("lsf", "extra_args")
