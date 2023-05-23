@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "miniwdl-lsf"
-version = "0.1.0"
+version = "0.1.1"
 description = "miniwdl lsf backend using singularity"
 authors = ["Andrew Thrasher <adthrasher@gmail.com>"]
 license = "MIT"
