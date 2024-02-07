@@ -7,6 +7,19 @@ Changelog
 .. This document is user facing. Please word the changes in such a way
 .. that users understand how the changes affect the new version.
 
+version 0.1.2
+----------------------------
++ Update memory reservation to use "-R rusage[mem=...]" instead of "-M".
+  To use "-M", set "memory_limit_multiplier" in configuration to a 
+  positive value.
++ Support config option "memory_limit_multiplier" to set a hard limit
+  on memory usage.
+
+version 0.1.1
+----------------------------
++ Update log location on retry
++ Correct memory calculation
+
 version 0.1.0
 ----------------------------
 Initial release with the following features:

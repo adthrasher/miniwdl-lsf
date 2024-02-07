@@ -106,9 +106,18 @@ class LSFSingularity(SingularityContainer):
             memory_divisor = 1
             if self.cfg["lsf"].get_bool("memory_per_job") and cpu is not None:
                memory_divisor = cpu
+
+            # Round to the nearest megabyte and divide by the memory divisor.
+            memory_request = round((memory / (1000 ** 2)) / memory_divisor)
             
-            # Round to the nearest megabyte.
-            bsub_args.extend(["-M", f"{round((memory / (1000 ** 2)) / memory_divisor)}M"])
+            # Handle memory limit multiplier.
+            memory_limit_multiplier = self.cfg["task_runtime"].get_float("memory_limit_multiplier")
+            if memory_limit_multiplier > 0.0:
+                memory_limit = round(memory_request * memory_limit_multiplier)
+                bsub_args.extend(["-M", f"{memory_limit}M"])
+
+            # Set memory request.
+            bsub_args.extend(["-R", f"rusage[mem={memory_request}M]"])
 
         if self.cfg.has_section("lsf"):
             extra_args = self.cfg.get("lsf", "extra_args")

@@ -47,6 +47,8 @@ example can be used to use miniwdl on a LSF cluster:
         }
 
     command_shell = /bin/bash
+
+    memory_limit_multiplier = 1.0
  
     [singularity]
     # This plugin wraps the singularity backend. Make sure the settings are
