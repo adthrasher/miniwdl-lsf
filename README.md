@@ -70,4 +70,6 @@ example can be used to use miniwdl on a LSF cluster:
     extra_args=""
     # Task memory specifications should be interpreted as per-job not per-core (LSF default)
     memory_per_job = true
+    # Job memory requirement should be specified using -R "rusage[mem=]" instead of -M
+    memory_via_R_flag = false
 ```

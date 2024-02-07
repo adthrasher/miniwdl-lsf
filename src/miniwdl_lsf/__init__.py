@@ -107,8 +107,15 @@ class LSFSingularity(SingularityContainer):
             if self.cfg["lsf"].get_bool("memory_per_job") and cpu is not None:
                memory_divisor = cpu
             
+            # With LSF, memory requests can be specified using the -M or the
+            # -R "rusage[mem=]" flags. By default memory requests will be
+            # specified using the -M flag.
+            # With this option the -R "rusage[mem=]" flag is used instead.
             # Round to the nearest megabyte.
-            bsub_args.extend(["-M", f"{round((memory / (1000 ** 2)) / memory_divisor)}M"])
+            if self.cfg["lsf"].get_bool("memory_via_R_flag"):
+                bsub_args.extend(["-R", f"rusage[mem={round((memory / (1000 ** 2)) / memory_divisor)}M]"])
+            else:
+                bsub_args.extend(["-M", f"{round((memory / (1000 ** 2)) / memory_divisor)}M"])
 
         if self.cfg.has_section("lsf"):
             extra_args = self.cfg.get("lsf", "extra_args")
