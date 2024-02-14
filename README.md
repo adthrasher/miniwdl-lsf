@@ -20,13 +20,13 @@ LSF-specific runtime hints
 ```
 runtime {
     lsf: object {
-        time_minutes: 30
+        time: 30
     }
 }
 ```
 
 Currently supported hints:
-- time_minutes: passed to LSF's `-W` argument. Sets the runtime limit for a task in minutes. [LSF documentation](https://www.ibm.com/docs/en/spectrum-lsf/10.1.0?topic=o-w-1)
+- time: passed to LSF's `-W` argument. Sets the runtime limit for a task in minutes. [LSF documentation](https://www.ibm.com/docs/en/spectrum-lsf/10.1.0?topic=o-w-1)
 
 Note: `hints` are in a state of flux within the WDL specification. WDL 1.1 added support for `hints` as part of the `runtime` section. These could be nested using the `object` syntax. However, `object` will be removed in future versions of WDL and the `hints` will become a distinct section in the task definition.
 

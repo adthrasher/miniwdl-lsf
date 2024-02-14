@@ -78,9 +78,9 @@ class LSFSingularity(SingularityContainer):
 
         if "lsf" in runtime_eval:
             lsf_runtime = runtime_eval["lsf"].value
-            if "time_minutes" in lsf_runtime:
-                time_minutes = lsf_runtime["time_minutes"].coerce(Type.Int()).value
-                self.runtime_values["time_minutes"] = time_minutes
+            if "time" in lsf_runtime:
+                time_minutes = lsf_runtime["time"].coerce(Type.Int()).value
+                self.runtime_values["time"] = time_minutes
 
     def _lsf_invocation(self):
         # We use bsub -I as this makes the submitted job behave like a local job.
@@ -122,7 +122,7 @@ class LSFSingularity(SingularityContainer):
             # Set memory request.
             bsub_args.extend(["-R", f"rusage[mem={memory_request}M]"])
 
-        time_minutes = self.runtime_values.get("time_minutes", None)
+        time_minutes = self.runtime_values.get("time", None)
         if time_minutes is not None:
             bsub_args.extend(["-W", str(time_minutes)])
 
