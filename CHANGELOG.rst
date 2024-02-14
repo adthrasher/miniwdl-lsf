@@ -7,6 +7,11 @@ Changelog
 .. This document is user facing. Please word the changes in such a way
 .. that users understand how the changes affect the new version.
 
+version 0.2.0
+----------------------------
++ Add support for runtime hint `lsf.time` to specify the time limit
+  for the job in minutes. Passed to bsub with the `-W` option.
+
 version 0.1.2
 ----------------------------
 + Update memory reservation to use "-R rusage[mem=...]" instead of "-M".

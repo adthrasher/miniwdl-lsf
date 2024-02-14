@@ -75,9 +75,12 @@ class LSFSingularity(SingularityContainer):
                         runtime_eval: Dict[str, Value.Base]) -> None:
         """Any non-default runtime variables can be parsed here"""
         super().process_runtime(logger, runtime_eval)
-        if "time_minutes" in runtime_eval:
-            time_minutes = runtime_eval["time_minutes"].coerce(Type.Int()).value
-            self.runtime_values["time_minutes"] = time_minutes
+
+        if "lsf" in runtime_eval:
+            lsf_runtime = runtime_eval["lsf"].value
+            if "time" in lsf_runtime:
+                time_minutes = lsf_runtime["time"].coerce(Type.Int()).value
+                self.runtime_values["time"] = time_minutes
 
     def _lsf_invocation(self):
         # We use bsub -I as this makes the submitted job behave like a local job.
@@ -118,6 +121,10 @@ class LSFSingularity(SingularityContainer):
 
             # Set memory request.
             bsub_args.extend(["-R", f"rusage[mem={memory_request}M]"])
+
+        time_minutes = self.runtime_values.get("time", None)
+        if time_minutes is not None:
+            bsub_args.extend(["-W", str(time_minutes)])
 
         if self.cfg.has_section("lsf"):
             extra_args = self.cfg.get("lsf", "extra_args")
