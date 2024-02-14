@@ -97,3 +97,7 @@ example can be used to use miniwdl on a LSF cluster:
     # Task memory specifications should be interpreted as per-job not per-core (LSF default)
     memory_per_job = true
 ```
+
+Acknowledgements
+--------------
+`miniwdl-lsf` is originally based on [`miniwdl-slurm`](https://github.com/miniwdl-ext/miniwdl-slurm).
