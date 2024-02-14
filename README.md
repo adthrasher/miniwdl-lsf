@@ -30,6 +30,13 @@ Currently supported hints:
 
 Note: `hints` are in a state of flux within the WDL specification. WDL 1.1 added support for `hints` as part of the `runtime` section. These could be nested using the `object` syntax. However, `object` will be removed in future versions of WDL and the `hints` will become a distinct section in the task definition.
 
+`miniwdl check` may return warnings when attempting to validate WDL tasks with an `lsf` object hint. Similar to the warnings below. These warnings do not affect the `miniwdl run` command.
+
+```
+        (Ln 41, Col 14) UnknownRuntimeKey, unknown entry in task runtime section: lsf
+        (Ln 41, Col 14) Deprecated, replace 'object' with specific struct type [WDL >= 1.1]
+```
+
 Configuration
 --------------
 The following [miniwdl configuration](https://miniwdl.readthedocs.io/en/latest/runner_reference.html#configuration)
