@@ -62,7 +62,15 @@
               <ul class="nav flex-column">
               </ul>
             </li>
+            <li class="nav-item" data-level="2"><a href="#lsf-specific-runtime-hints" class="nav-link">LSF-specific runtime hints</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
             <li class="nav-item" data-level="2"><a href="#configuration" class="nav-link">Configuration</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#acknowledgements" class="nav-link">Acknowledgements</a>
               <ul class="nav flex-column">
               </ul>
             </li>
@@ -82,6 +90,21 @@ description has a container, singularity will be used as container runtime.</p>
 <h2 id="installation">Installation</h2>
 <p>For the development version::</p>
 <pre><code>pip install git+https://github.com/adthrasher/miniwdl-lsf.git
+</code></pre>
+<h2 id="lsf-specific-runtime-hints">LSF-specific runtime hints</h2>
+<p><code>miniwdl-lsf</code> supports LSF-specific runtime hints. These can be specified using the <code>object</code> syntax under an <code>lsf</code> object.</p>
+<pre><code>runtime {
+    lsf: object {
+        time: 30
+    }
+}
+</code></pre>
+<p>Currently supported hints:
+- time: passed to LSF's <code>-W</code> argument. Sets the runtime limit for a task in minutes. <a href="https://www.ibm.com/docs/en/spectrum-lsf/10.1.0?topic=o-w-1">LSF documentation</a></p>
+<p>Note: <code>hints</code> are in a state of flux within the WDL specification. WDL 1.1 added support for <code>hints</code> as part of the <code>runtime</code> section. These could be nested using the <code>object</code> syntax. However, <code>object</code> will be removed in future versions of WDL and the <code>hints</code> will become a distinct section in the task definition.</p>
+<p><code>miniwdl check</code> may return warnings when attempting to validate WDL tasks with an <code>lsf</code> object hint. Similar to the warnings below. These warnings do not affect the <code>miniwdl run</code> command.</p>
+<pre><code>        (Ln 41, Col 14) UnknownRuntimeKey, unknown entry in task runtime section: lsf
+        (Ln 41, Col 14) Deprecated, replace 'object' with specific struct type [WDL &gt;= 1.1]
 </code></pre>
 <h2 id="configuration">Configuration</h2>
 <p>The following <a href="https://miniwdl.readthedocs.io/en/latest/runner_reference.html#configuration">miniwdl configuration</a>
@@ -139,7 +162,9 @@ example can be used to use miniwdl on a LSF cluster:</p>
     extra_args=&quot;&quot;
     # Task memory specifications should be interpreted as per-job not per-core (LSF default)
     memory_per_job = true
-</code></pre></div>
+</code></pre>
+<h2 id="acknowledgements">Acknowledgements</h2>
+<p><code>miniwdl-lsf</code> is originally based on <a href="https://github.com/miniwdl-ext/miniwdl-slurm"><code>miniwdl-slurm</code></a>.</p></div>
             </div>
         </div>
 
@@ -223,5 +248,5 @@ example can be used to use miniwdl on a LSF cluster:</p>
 
 <!--
 MkDocs version : 1.5.3
-Build Date UTC : 2024-02-07 19:15:59.743877+00:00
+Build Date UTC : 2024-02-14 20:38:48.369201+00:00
 -->
